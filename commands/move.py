@@ -18,8 +18,8 @@ class FmMoveCommand(AppCommand):
         if len(self.origins) > 1:
             initial_text = commonpath(self.origins)
         else:
-            initial_text = os.path.dirname(self.origins[0])
-        initial_text = user_friendly(initial_text) + "/"
+            initial_text = self.origins[0]
+        initial_text = user_friendly(initial_text)
 
         ipt = InputForPath(
             caption="Move to",
@@ -38,21 +38,20 @@ class FmMoveCommand(AppCommand):
         )
 
     def move(self, path, input_path):
-        makedirs(path, exist_ok=True)
+        makedirs(os.path.dirname(path), exist_ok=True)
         for origin in self.origins:
             view = self.window.find_open_file(origin)
-            new_name = os.path.join(path, os.path.basename(origin))
             try:
-                os.rename(origin, new_name)
+                os.rename(origin, path)
             except Exception as e:
                 sublime.error_message(
                     "An error occured while moving the file " "{}".format(e)
                 )
                 raise OSError(
                     "An error occured while moving the file {0!r} "
-                    "to {1!r}".format(origin, new_name)
+                    "to {1!r}".format(origin, path)
                 )
             if view:
-                view.retarget(new_name)
+                view.retarget(path)
 
         refresh_sidebar(self.settings, self.window)
