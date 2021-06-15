@@ -2,6 +2,7 @@
 from ..libs.input_for_path import InputForPath
 from ..libs.sublimefunctions import *
 from .appcommand import AppCommand
+from ..libs.bracex import expand
 
 
 class FmCreaterCommand(AppCommand):
@@ -9,6 +10,14 @@ class FmCreaterCommand(AppCommand):
     final ones if it doesn't exists. Finaly, opens the file"""
 
     def run(self, abspath, input_path):
+        abs_paths = expand(abspath)
+        input_paths = expand(abspath)
+
+        if (len(abs_paths) > 1):
+            for index, abs_path in enumerate(abs_paths):
+                self.run(abs_path, input_paths[index])
+            return
+
         input_path = user_friendly(input_path)
         if input_path[-1] == "/":
             return makedirs(abspath, exist_ok=True)
